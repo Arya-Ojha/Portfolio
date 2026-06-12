@@ -15,14 +15,32 @@ body {
 	height: 100%;
 }
 
-.minicircle {
+.mini-circle {
 	width: 13px;
 	height: 13px;
 	position: absolute;
 	z-index: 999;
 	border-radius: 50%;
-	background-color: #fff;
+	background-color: #fff !important;
+	pointer-events: none;
+	box-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
 	transition: all cubic-bezier(0.19, 1, 0.22, 1) 0.5s;
+}
+
+.mini-circle.splattered {
+	border-radius: 40% 60% 65% 35% / 30% 45% 55% 70%;
+	transform: scale(1.5) translate(-6px, -6px);
+	background: linear-gradient(135deg, #ffffff, #f0f0f0);
+	box-shadow: 0 0 14px rgba(255, 255, 255, 0.2);
+}
+
+.splatter-piece {
+	position: fixed;
+	pointer-events: none;
+	background: #fff;
+	border-radius: 50%;
+	z-index: 10000;
+	will-change: transform, opacity;
 }
 
 .bounding {
@@ -30,7 +48,7 @@ body {
 	overflow: hidden;
 }
 
-.bounding .boundingelem {
+.bounding .bounding-element {
 	transform: translateY(100%);
 }
 
@@ -54,7 +72,7 @@ body {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	position: sticky;
+	position: static;
 }
 
 .nav a {
@@ -66,14 +84,14 @@ body {
 
 .heading h1 {
 	font-size: 11vw;
-	line-height: 1;
+	line-height: 0.9;
 	font-weight: 900;
 	opacity: 0.6;
-	margin-left: 50px;
+	margin-left: 112px;
 }
 
 .heading {
-	margin-top: 90px;
+	margin-top: 100px;
 }
 
 .heading .head {
