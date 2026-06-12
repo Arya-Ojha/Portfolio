@@ -6,13 +6,15 @@
 	font-family: "Poppins", sans-serif;
 	box-sizing: border-box;
 	font-weight: 370;
-	cursor: none;
+	/* cursor: none; */
 }
 
 html,
 body {
 	width: 100%;
 	height: 100%;
+	background-color: white	;
+	z-index: -1;
 }
 
 .mini-circle {
@@ -54,25 +56,49 @@ body {
 
 .main {
 	width: 100%;
-	background-color: black;
+	background-color: transparent;
+	z-index: 1;
 }
 
 .hero {
 	width: 100%;
-	height: 100vh;
-	background-color: black;
+	height: 75vh;
+	background-color: transparent;
 	color: #fff;
 	position: relative;
 }
 
+.tran {
+	/* background-color: rgb(255 255 255 / 10%); */
+  
+  backdrop-filter: blur(4px);
+  
+  /* border: 1px solid rgb(255 255 255 / 30%); */
+  border-radius: 12px;
+  padding-left: 10px;
+}
+
+.tran2 {
+	/* background-color: rgb(255 255 255 / 10%); */
+  
+  backdrop-filter: blur(4px);
+  
+  /* border: 2px solid rgb(255 255 255 / 30%); */
+  border-radius: 52px;
+  padding-left: 10px;
+}
 .nav {
 	width: 100%;
-	padding: 20px 40px;
+	padding: 30px 40px;
 	color: #fff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	position: static;
+	position: fixed;
+    top: 0;
+    left: 0;	
+	z-index: 10;
+	background-color: transparent;
 }
 
 .nav a {
@@ -91,7 +117,7 @@ body {
 }
 
 .heading {
-	margin-top: 100px;
+	margin-top: 200px;
 }
 
 .heading .head {
@@ -141,7 +167,7 @@ body {
 .second {
 	padding-right: 10vw;
 	padding-top: 200px;
-	background-color: black;
+	background-color: transparent;
 	width: 100%;
 	height: 100%;
 	padding-left: 3vw;
@@ -152,11 +178,13 @@ body {
 	width: 100%;
 	border-top: 1px solid #888;
 	padding: 2vw 3vw;
-	padding-right: 0;
+	padding-right: 40px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	position: relative;
+	margin-top: 20px;
+	/* margin-right: 40px; */
 }
 
 .elem h1 {
@@ -179,7 +207,8 @@ body {
 
 .about {
 	width: 100%;
-	background-color: black;
+	height: auto;
+	background-color: transparent;
 	padding: 14vw 5vw;
 	padding-left: 40vw;
 	display: flex;
@@ -223,8 +252,9 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	padding: 30px 30px;
-	background-color: black;
+	background-color: transparent;
 	color: #fff;
+	z-index: 1;
 }
 
 .footerleft {
@@ -243,4 +273,21 @@ body {
 .footerright {
 	display: flex;
 	gap: 20px;
+}
+
+#sand-canvas {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 0;
+	overflow: hidden;
+	pointer-events: auto; 
+}
+
+#sand-canvas canvas {
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
 }
