@@ -1,16 +1,11 @@
 var timeout;
 
-try {
-	const scroll = new LocomotiveScroll({
-		el: document.querySelector(".main"),
-		smooth: true,
-	});
-} catch (e) {
-	console.warn("LocomotiveScroll failed, enabling native scroll:", e);
-	document.documentElement.classList.remove("has-scroll-smooth");
-	document.documentElement.style.overflow = "auto";
-	document.body.style.overflow = "auto";
+if ("scrollRestoration" in history) {
+	history.scrollRestoration = "manual";
 }
+window.addEventListener("load", function () {
+	window.scrollTo(0, 0);
+});
 
 function firstPageAnim() {
 	var tl = gsap.timeline();
@@ -96,6 +91,26 @@ document.addEventListener("click", function (e) {
 	createSplatter(e.clientX, e.clientY, 14);
 });
 
+// menu toggle
+document.getElementById("menu-toggle").addEventListener("click", function () {
+	document.getElementById("menu-overlay").classList.add("active");
+});
+
+document.getElementById("menu-close").addEventListener("click", function () {
+	document.getElementById("menu-overlay").classList.remove("active");
+});
+
+document.querySelectorAll(".menu-links a").forEach(function (link) {
+	link.addEventListener("click", function (e) {
+		e.preventDefault();
+		var target = document.querySelector(this.getAttribute("href"));
+		if (target) {
+			target.scrollIntoView({ behavior: "smooth" });
+		}
+		document.getElementById("menu-overlay").classList.remove("active");
+	});
+});
+
 // teeno element ko sleect karo, uske baad teeno par ek mousemove lagao, jab mousemove ho to ye pata karo ki mouse kaha par hai, jiska matlab hai mouse ki x and y position pata karo, ab mouse ki x y position ke badle us image ko show karo and us image ko move karo, move karte waqt rotate karo, and jaise jaise mouse tez chale waise waise rotation bhi tez ho jaye
 
 document.querySelectorAll(".elem").forEach(function (elem) {
@@ -133,7 +148,7 @@ let grid, nextGrid;
 let velocityGrid, nextVelocityGrid;
 const w = 8;
 let cols, rows;
-let hueValue = 200;
+let hueValue = 270;
 const gravity = 0.1;
 
 function idx(i, j) {
@@ -223,7 +238,7 @@ function draw() {
 			const hue = grid[idx(i, j)];
 			if (hue > 0) {
 				noStroke();
-				fill(hue, 110, 240);
+				fill(hue, 100, 210);
 				square(i * w, j * w, w);
 			}
 		}

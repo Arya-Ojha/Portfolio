@@ -369,7 +369,7 @@ body {
 .about {
 	width: 100%;
 	background-color: transparent;
-	padding: 10vw 5vw 14vw;
+	padding: 8vw 5vw 8vw;
 	padding-left: 30vw;
 	display: flex;
 	justify-content: space-between;
@@ -448,13 +448,12 @@ body {
 	background-color: transparent;
 	color: #fff;
 	z-index: 1;
-	border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footerleft {
 	display: flex;
 	gap: 20px;
-	opacity: 0.5;
+	opacity: 0.8;
 	font-size: 13px;
 }
 
@@ -470,7 +469,7 @@ body {
 	font-size: 13px;
 	font-weight: 500;
 	letter-spacing: 2px;
-	opacity: 0.5;
+	opacity: 0.8;
 	transition: all 0.3s ease;
 	position: relative;
 }
@@ -503,7 +502,7 @@ body {
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	z-index: -1;
+	z-index: 0;
 	overflow: hidden;
 	pointer-events: auto;
 }
@@ -512,6 +511,70 @@ body {
 	display: block;
 	width: 100% !important;
 	height: 100% !important;
+}
+
+/* ============================================
+   MENU OVERLAY
+   ============================================ */
+#menu-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 260px;
+	max-width: 75vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.85);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border-left: 1px solid rgba(255, 255, 255, 0.06);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	padding: 0 40px;
+	transform: translateX(100%);
+	transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+#menu-overlay.active {
+	transform: translateX(0);
+}
+
+#menu-close {
+	position: absolute;
+	top: 26px;
+	right: 22px;
+	font-size: 24px;
+	color: #fff;
+	cursor: pointer;
+	opacity: 0.5;
+	transition: opacity 0.3s ease;
+	line-height: 1;
+}
+
+#menu-close:hover {
+	opacity: 1;
+}
+
+.menu-links {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.menu-links a {
+	color: #fff;
+	text-decoration: none;
+	font-size: 1.1rem;
+	font-weight: 500;
+	letter-spacing: 1px;
+	opacity: 0.5;
+	transition: opacity 0.3s ease;
+}
+
+.menu-links a:hover {
+	opacity: 1;
 }
 
 /* ============================================

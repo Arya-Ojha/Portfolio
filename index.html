@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arya Ojha | AI Engineer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <link rel="stylesheet" href="loco.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,11 +15,19 @@
     <div id="sand-canvas"></div>
     <div class="nav">
         <a href="#">ARYA OJHA</a>
-        <h4>MENU+</h4>
+        <h4 id="menu-toggle">MENU+</h4>
+    </div>
+    <div id="menu-overlay">
+        <div id="menu-close">&times;</div>
+        <nav class="menu-links">
+            <a href="#home">Home</a>
+            <a href="#work">Work</a>
+            <a href="#about">About</a>
+        </nav>
     </div>
     <div class="main">
 
-        <div class="hero">
+        <div class="hero" id="home">
 
             <div class="heading">
                 <div class="bounding">
@@ -55,7 +62,7 @@
             </div>
 
         </div>
-        <div class="second">
+        <div class="second" id="work">
             <div class="elem tran2">
                 <img src="assets/Pragyasetu.png" alt="">
                 <h1>PRAGYASETU</h1>
@@ -72,7 +79,7 @@
                 <h5>2025</h5>
             </div>
         </div>
-        <div class="about">
+        <div class="about" id="about">
             <img src="dp.jpg" alt="">
             <div class="aboutsection tran2">
                 <h5>(ABOUT ME)</h5>
@@ -80,7 +87,7 @@
                 <a href="#">Let's talk</a>
             </div>
         </div>
-        <div class="footer">
+        <div class="footer" id="contact">
             <div class="footerleft">
                 <h5>2028 &copy;</h5>
                 <!-- <h5>ti AM EST</h5> -->
@@ -99,7 +106,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"
         integrity="sha512-Ic9xkERjyZ1xgJ5svx3y0u3xrvfT/uPkV99LBwe68xjy/mGtO+4eURHZBW2xW4SZbFrF1Tf090XqB+EVgXnVjw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.min.js"></script>
     <script src="script.js"></script>
 </body>
 
