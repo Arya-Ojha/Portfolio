@@ -45,10 +45,95 @@ npx serve .
 ## ✨ Sand Simulation
 
 The background sand is a custom optimized simulation:
-- **1D Float32Array grids** for performance
-- **30 fps** frame rate
-- Grains spawn under the cursor and pile up naturally at the bottom
+
+- **1D Float32Array grids** for performance  
+- **30 fps** frame rate  
+- Grains spawn under the cursor and pile up naturally at the bottom  
 - Configurable via `hueValue`, `gravity`, and `fill()` saturation/brightness in `script.js`
+
+```js
+// p5.js Falling Sand Simulation — Optimized
+let grid, nextGrid;
+let velocityGrid, nextVelocityGrid;
+const w = 8, gravity = 0.1;
+let hueValue = 270;
+
+function setup() {
+  const canvas = createCanvas(windowWidth, windowHeight);
+  canvas.parent("sand-canvas");
+  colorMode(HSB, 360, 255, 255);
+  frameRate(30);
+  initGrid();
+}
+
+function draw() {
+  background(0);
+
+  // spawn grains under cursor on mouse move
+  if (mouseX !== pmouseX || mouseY !== pmouseY) {
+    const mouseCol = floor(mouseX / w);
+    const mouseRow = floor(mouseY / w);
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (random(1) < 0.75 && withinCols(mouseCol + i) && withinRows(mouseRow + j)) {
+          grid[idx(mouseCol + i, mouseRow + j)] = hueValue;
+          velocityGrid[idx(mouseCol + i, mouseRow + j)] = 1;
+        }
+      }
+    }
+    hueValue += 0.5;
+    if (hueValue > 360) hueValue = 1;
+  }
+
+  // physics: move grains down with diagonal slide
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const state = grid[idx(i, j)];
+      if (state > 0) {
+        const newPos = Math.min(int(j + velocityGrid[idx(i, j)]), rows - 1);
+        for (let y = newPos; y > j; y--) {
+          const below = grid[idx(i, y)];
+          const dir = random(1) < 0.5 ? 1 : -1;
+          const belowA = withinCols(i + dir) && withinRows(y) ? grid[idx(i + dir, y)] : -1;
+          const belowB = withinCols(i - dir) && withinRows(y) ? grid[idx(i - dir, y)] : -1;
+
+          if (below === 0) {
+            nextGrid[idx(i, y)] = state;
+            nextVelocityGrid[idx(i, y)] = velocityGrid[idx(i, j)] + gravity;
+            break;
+          } else if (belowA === 0) {
+            nextGrid[idx(i + dir, y)] = state;
+            nextVelocityGrid[idx(i + dir, y)] = velocityGrid[idx(i, j)] + gravity;
+            break;
+          } else if (belowB === 0) {
+            nextGrid[idx(i - dir, y)] = state;
+            nextVelocityGrid[idx(i - dir, y)] = velocityGrid[idx(i, j)] + gravity;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // render grains
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const hue = grid[idx(i, j)];
+      if (hue > 0) {
+        noStroke();
+        fill(hue, 100, 210);
+        square(i * w, j * w, w);
+      }
+    }
+  }
+
+  // swap buffers
+  [grid, nextGrid] = [nextGrid, grid];
+  [velocityGrid, nextVelocityGrid] = [nextVelocityGrid, velocityGrid];
+  nextGrid.fill(0);
+  nextVelocityGrid.fill(0);
+}
+```
 
 ## 📄 License
 
