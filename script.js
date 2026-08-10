@@ -1,9 +1,16 @@
 var timeout;
 
-const scroll = new LocomotiveScroll({
-	el: document.querySelector(".main"),
-	smooth: true,
-});
+try {
+	const scroll = new LocomotiveScroll({
+		el: document.querySelector(".main"),
+		smooth: true,
+	});
+} catch (e) {
+	console.warn("LocomotiveScroll failed, enabling native scroll:", e);
+	document.documentElement.classList.remove("has-scroll-smooth");
+	document.documentElement.style.overflow = "auto";
+	document.body.style.overflow = "auto";
+}
 
 function firstPageAnim() {
 	var tl = gsap.timeline();
@@ -118,126 +125,140 @@ document.querySelectorAll(".elem").forEach(function (elem) {
 });
 
 /* =========================================================
-   p5.js Falling Sand Simulation
-   Note: requires a separate <div id="sand-canvas"></div>
-   and p5.js library included in the HTML.
+   p5.js Falling Sand Simulation — Optimized
+   w=8 | 1D Float32 grids | pre-allocated | 30fps
    ========================================================= */
 
-function make2DArray(cols, rows) {
-	let arr = new Array(cols);
-	for (let i = 0; i < arr.length; i++) {
-		arr[i] = new Array(rows);
-		for (let j = 0; j < arr[i].length; j++) {
-			arr[i][j] = 0;
-		}
-	}
-	return arr;
-}
-
-let grid;
-let velocityGrid;
-let w = 4;
+let grid, nextGrid;
+let velocityGrid, nextVelocityGrid;
+const w = 8;
 let cols, rows;
 let hueValue = 200;
-let gravity = 0.1;
+const gravity = 0.1;
+
+function idx(i, j) {
+	return i * rows + j;
+}
 
 function withinCols(i) {
-	return i >= 0 && i <= cols - 1;
+	return i >= 0 && i < cols;
 }
 
 function withinRows(j) {
-	return j >= 0 && j <= rows - 1;
+	return j >= 0 && j < rows;
+}
+
+function initGrid() {
+	const oldGrid = grid;
+	const oldCols = cols || 0;
+	const oldRows = rows || 0;
+
+	cols = floor(width / w);
+	rows = floor(height / w);
+	const total = cols * rows;
+
+	grid      = new Float32Array(total);
+	nextGrid  = new Float32Array(total);
+	velocityGrid      = new Float32Array(total);
+	nextVelocityGrid  = new Float32Array(total);
+
+	// preserve grains across resize
+	if (oldGrid && oldCols > 0) {
+		const mc = min(cols, oldCols);
+		const mr = min(rows, oldRows);
+		for (let i = 0; i < mc; i++) {
+			for (let j = 0; j < mr; j++) {
+				const newI = idx(i, j);
+				const oldI = i * oldRows + j;
+				grid[newI]         = oldGrid[oldI];
+				velocityGrid[newI] = oldVelocityGrid[oldI];
+			}
+		}
+	}
 }
 
 function setup() {
-	let canvas = createCanvas(600, 500);
+	const canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("sand-canvas");
 	colorMode(HSB, 360, 255, 255);
-	cols = width / w;
-	rows = height / w;
-	grid = make2DArray(cols, rows);
-	velocityGrid = make2DArray(cols, rows, 1);
+	frameRate(30);
+	initGrid();
 }
 
-function mouseDragged() {}
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+	initGrid();
+}
 
 function draw() {
 	background(0);
 
+	// ---- spawn grains under cursor ----
 	if (mouseX !== pmouseX || mouseY !== pmouseY) {
-		let mouseCol = floor(mouseX / w);
-		let mouseRow = floor(mouseY / w);
-		let matrix = 2;
-		let extent = floor(matrix / 2);
+		const mouseCol = floor(mouseX / w);
+		const mouseRow = floor(mouseY / w);
+		const matrix = 2;
+		const extent = floor(matrix / 2);
 
 		for (let i = -extent; i <= extent; i++) {
 			for (let j = -extent; j <= extent; j++) {
 				if (random(1) < 0.75) {
-					let col = mouseCol + i;
-					let row = mouseRow + j;
+					const col = mouseCol + i;
+					const row = mouseRow + j;
 					if (withinCols(col) && withinRows(row)) {
-						grid[col][row] = hueValue;
-						velocityGrid[col][row] = 1;
+						const k = idx(col, row);
+						grid[k]         = hueValue;
+						velocityGrid[k] = 1;
 					}
 				}
 			}
 		}
-
 		hueValue += 0.5;
-		if (hueValue > 360) {
-			hueValue = 1;
-		}
+		if (hueValue > 360) hueValue = 1;
 	}
 
+	// ---- render grains ----
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
-			noStroke();
-			if (grid[i][j] > 0) {
-				fill(grid[i][j], 110, 240);
-				let x = i * w;
-				let y = j * w;
-				square(x, y, w);
+			const hue = grid[idx(i, j)];
+			if (hue > 0) {
+				noStroke();
+				fill(hue, 110, 240);
+				square(i * w, j * w, w);
 			}
 		}
 	}
 
-	let nextGrid = make2DArray(cols, rows);
-	let nextVelocityGrid = make2DArray(cols, rows);
-
+	// ---- physics: move grains down ----
 	for (let i = 0; i < cols; i++) {
 		for (let j = 0; j < rows; j++) {
-			let state = grid[i][j];
-			let velocity = velocityGrid[i][j];
+			const state    = grid[idx(i, j)];
+			const velocity = velocityGrid[idx(i, j)];
 			let moved = false;
 
 			if (state > 0) {
-				let newPos = int(j + velocity);
+				const newPos = Math.min(int(j + velocity), rows - 1);
 
 				for (let y = newPos; y > j; y--) {
-					let below = grid[i][y];
-					let dir = 1;
-					if (random(1) < 0.5) {
-						dir *= -1;
-					}
+					const below = grid[idx(i, y)];
+					let dir = random(1) < 0.5 ? 1 : -1;
 
-					let belowA = -1;
-					let belowB = -1;
-					if (withinCols(i + dir)) belowA = grid[i + dir][y];
-					if (withinCols(i - dir)) belowB = grid[i - dir][y];
+					const belowA = (withinCols(i + dir) && withinRows(y)) ? grid[idx(i + dir, y)] : -1;
+					const belowB = (withinCols(i - dir) && withinRows(y)) ? grid[idx(i - dir, y)] : -1;
 
 					if (below === 0) {
-						nextGrid[i][y] = state;
-						nextVelocityGrid[i][y] = velocity + gravity;
+						nextGrid[idx(i, y)]         = state;
+						nextVelocityGrid[idx(i, y)] = velocity + gravity;
 						moved = true;
 						break;
 					} else if (belowA === 0) {
-						nextGrid[i + dir][y] = state;
-						nextVelocityGrid[i + dir][y] = velocity + gravity;
+						nextGrid[idx(i + dir, y)]         = state;
+						nextVelocityGrid[idx(i + dir, y)] = velocity + gravity;
 						moved = true;
 						break;
 					} else if (belowB === 0) {
-						nextGrid[i - dir][y] = state;
-						nextVelocityGrid[i - dir][y] = velocity + gravity;
+						nextGrid[idx(i - dir, y)]         = state;
+						nextVelocityGrid[idx(i - dir, y)] = velocity + gravity;
 						moved = true;
 						break;
 					}
@@ -245,12 +266,16 @@ function draw() {
 			}
 
 			if (state > 0 && !moved) {
-				nextGrid[i][j] = grid[i][j];
-				nextVelocityGrid[i][j] = velocityGrid[i][j] + gravity;
+				const k = idx(i, j);
+				nextGrid[k]         = grid[k];
+				nextVelocityGrid[k] = Math.min(velocityGrid[k] + gravity, 5);
 			}
 		}
 	}
 
-	grid = nextGrid;
-	velocityGrid = nextVelocityGrid;
+	// ---- swap buffers & clear next ----
+	[grid, nextGrid]                 = [nextGrid, grid];
+	[velocityGrid, nextVelocityGrid] = [nextVelocityGrid, velocityGrid];
+	nextGrid.fill(0);
+	nextVelocityGrid.fill(0);
 }
